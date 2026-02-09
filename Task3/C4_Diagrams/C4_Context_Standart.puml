@@ -2,85 +2,38 @@
 !NEW_C4_STYLE=1
 !theme C4_sandstone from <C4/themes>
 !include Templates/C4_Context.puml
-title "BS-ADR1 MVP: Открытие депозитов"
+title "BS-ADR1 MVP: Система онлайн-открытия депозитов"
 
 SHOW_PERSON_OUTLINE()
 ' LAYOUT_LANDSCAPE()
-LAYOUT_TOP_DOWN()
+' LAYOUT_TOP_DOWN()
 'LAYOUT_AS_SKETCH()
 
+Person_Ext(client, "Client", "Клиент")
+' Person(call_center_operator, "Call Center Operator", "Консультирует клиентов")
+
+System_Ext(online_banking_system_ext, "Online banking application")
+
+System_Boundary(bank_system, "Система банка") {
+    System(general_system, "General_system", "Банковские сервисы")
+    System(call_center_system, "Call Center Operator", "Консультирует клиентов")
+    Person(bo_deposit_employee, "Back Office Deposit Employee", "Обрабатывает заявки на депозиты")
+    System(sms_gateway, "SMS Gateway", "Отправляет СМС-уведомлений")
+}
+
+System_Ext(partner_call_center_system_ext, "Partner call center")
 
 
-Person(client, "Client", "Клиент")
-System(site, "Site", "Сайт")
-System_Ext(online_banking, "Online banking", "Интернет-банк")
-System(abs, "ABS", "Автоматизированная банковская система")
+Rel_D(client, online_banking_system_ext, "Просмотр условий депозитов")
+Rel_D(client, online_banking_system_ext, "Подача заявки на депозит")
+
+Rel_D(online_banking_system_ext, general_system, "Подача заявки на депозит")
 
 
+Rel_L(general_system, call_center_system,  "Запрос ставок депозитов")
+Rel_R(general_system, partner_call_center_system_ext,  "Получение файлов со ставками")
+Rel_D(general_system, sms_gateway,  "Уведомление о статусах депозита")
+Rel_U(bo_deposit_employee, general_system,  "Обработка заявки на депозит")
 
-Person(bo_deposit_manager, "Back Office Deposit Manager", "Менеджер депозитов бэк-офиса")
-
-Person(fo_client_manager, "Front Office Client Manager", "Клиентский менеджер фронт-офиса")
-Person(call_center_operator, "Call Center Operator", "Оператор кол-центра")
-
-
-
-' @startuml
-' !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
-
-' title Система онлайн-открытия депозитов — Контекст (Уровень 1)
-
-' Person(клиент, "Клиент", "Физическое лицо — клиент банка")
-' Person(сотрудник, "Сотрудник бэк-офиса", "Обрабатывает заявки на депозиты")
-
-' System_Boundary(система, "Система онлайн-открытия депозитов") {
-' }
-
-' System_Ext(кол_центр, "Внутренний кол-центр банка", "Система кол-центра (платформа подрядчика)")
-' System_Ext(партнёр, "Партнёрский кол-центр", "Внешняя система кол-центра")
-' System_Ext(смс, "Система СМС", "Сервис отправки СМС-уведомлений")
-
-' Rel(клиент, система, "Использует веб-интерфейс", "HTTPS")
-' Rel(сотрудник, система, "Обрабатывает заявки", "Внутренний интерфейс АБС")
-' Rel(система, кол_центр, "Предоставляет ставки депозитов", "API")
-' Rel(система, партнёр, "Отправляет файлы со ставками", "SFTP/Email")
-' Rel(система, смс, "Запрашивает отправку СМС", "API")
-
-' @enduml
-
-
-' Person(user, "User", "Пользователь")
-
-' System(smart_house_system, "Smart house System ", "Система управления умным домом")
-
-' Boundary(house, "Дом") {
-'     System_Ext(heating_sensor_api, "Heating sensor API", "Внешний API для управления датчиком отопления",)
-'     System_Ext(temperature_sensor_api, "Temperature sensor API", "Внешний API для получения данных датчика температуры",)
-' }
-
-' Person_Ext(service_man, "Serviceman", "Наладчик")
-
-' Rel(user, smart_house_system, "Управляет отоплением в доме и проверяет температуру")
-' Rel(smart_house_system, heating_sensor_api, "Управляет")
-' Rel(smart_house_system, temperature_sensor_api, "Получает данные")
-
-' Rel(service_man, heating_sensor_api, "Устанавливает")
-' Rel(service_man, temperature_sensor_api, "Устанавливает")
-
-' Person(user, "User", "Пользователь")
-' System(smart_house_system, "Smart house System ", "Система управления умным домом")
-
-' Boundary(house, "Дом") {
-'     System_Ext(heating_sensor_api, "Heating sensor API", "Внешний API для управления датчиком отопления",)
-'     System_Ext(temperature_sensor_api, "Temperature sensor API", "Внешний API для получения данных датчика температуры",)
-' }
-
-' Person_Ext(service_man, "Serviceman", "Наладчик")
-
-' Rel(user, smart_house_system, "Управляет отоплением в доме и проверяет температуру")
-' Rel(smart_house_system, heating_sensor_api, "Управляет")
-' Rel(smart_house_system, temperature_sensor_api, "Получает данные")
-
-' Rel(service_man, heating_sensor_api, "Устанавливает")
-' Rel(service_man, temperature_sensor_api, "Устанавливает")
 @enduml
+
