@@ -2,38 +2,33 @@
 !NEW_C4_STYLE=1
 !theme C4_sandstone from <C4/themes>
 !include Templates/C4_Context.puml
-title "BS-ADR1 MVP: Система онлайн-открытия депозитов"
+title "BS-ADR1 MVP: Система онлайн-открытия депозитов (контекст)"
 
 SHOW_PERSON_OUTLINE()
 ' LAYOUT_LANDSCAPE()
 ' LAYOUT_TOP_DOWN()
 'LAYOUT_AS_SKETCH()
 
-Person_Ext(client, "Client", "Клиент")
+Person(client, "Client", "Клиент")
 ' Person(call_center_operator, "Call Center Operator", "Консультирует клиентов")
 
-System_Ext(online_banking_system_ext, "Online banking application")
-
-System_Boundary(bank_system, "Система банка") {
-    System(general_system, "General_system", "Банковские сервисы")
-    System(call_center_system, "Call Center Operator", "Консультирует клиентов")
+Enterprise_Boundary(bank_systems, "Системы банка") {
+    System(abs_system, "ABS", "Автоматизированная банковская система")
+    System(call_center_system, "Call Center", "Консультирует клиентов")
     Person(bo_deposit_employee, "Back Office Deposit Employee", "Обрабатывает заявки на депозиты")
     System(sms_gateway, "SMS Gateway", "Отправляет СМС-уведомлений")
 }
 
+System_Ext(online_banking_system_ext, "Online banking application")
 System_Ext(partner_call_center_system_ext, "Partner call center")
-
 
 Rel_D(client, online_banking_system_ext, "Просмотр условий депозитов")
 Rel_D(client, online_banking_system_ext, "Подача заявки на депозит")
-
-Rel_D(online_banking_system_ext, general_system, "Подача заявки на депозит")
-
-
-Rel_L(general_system, call_center_system,  "Запрос ставок депозитов")
-Rel_R(general_system, partner_call_center_system_ext,  "Получение файлов со ставками")
-Rel_D(general_system, sms_gateway,  "Уведомление о статусах депозита")
-Rel_U(bo_deposit_employee, general_system,  "Обработка заявки на депозит")
+Rel_D(online_banking_system_ext, abs_system, "Подача заявки на депозит")
+Rel(abs_system, call_center_system, "Запрос ставок депозитов")
+Rel_R(abs_system, partner_call_center_system_ext, "Получение файлов со ставками")
+Rel_D(abs_system, sms_gateway, "Уведомление о статусах депозита")
+Rel_U(bo_deposit_employee, abs_system, "Обработка заявки на депозит")
 
 @enduml
 
