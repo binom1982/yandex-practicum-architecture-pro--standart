@@ -30,7 +30,10 @@ Rel_D(load_balancer_ext, reserve_online_banking_cluster_ext, "Подача за�
 
 Enterprise_Boundary(bank_systems, "Системы банка") {
     System_Boundary(abs_system, "Автоматизированная банковская система (ABS)") {
+        Container(application_processing_service, "Application processing Service", "Обрабатывает заявки на депозит")
         Container(abs_service, "ABS Service")
+        
+        
         Container(rates_service, "Rates Service", "REST API, .NET Core", "Кэширование и предоставление актуальных ставок депозитов")
     }
 
@@ -43,11 +46,14 @@ Enterprise_Boundary(bank_systems, "Системы банка") {
 System_Ext(partner_call_center_system_ext, "Partner call center")
 
 Rel_L(rates_service, abs_service, "Получение ставок")
-Rel_D(main_online_banking_cluster_ext, abs_service, "Подача заявки на депозит")
-Rel_D(reserve_online_banking_cluster_ext, abs_service, "Подача заявки на депозит")
+Rel_D(main_online_banking_cluster_ext, application_processing_service, "Подача заявки на депозит")
+Rel_D(reserve_online_banking_cluster_ext, application_processing_service, "Подача заявки на депозит")
+
+Rel_D(abs_service, sms_gateway, "Уведомление о статусах депозита")
+Rel_D(application_processing_service, abs_service, "Передает информацию")
+Rel_R(bo_deposit_employee, application_processing_service, "Обработка заявки на депозит")
+
 Rel(rates_service, call_center_system, "Запрос ставок депозитов")
 Rel_R(rates_service, partner_call_center_system_ext, "Получение файлов со ставками")
-Rel_D(abs_service, sms_gateway, "Уведомление о статусах депозита")
-Rel_U(bo_deposit_employee, abs_service, "Обработка заявки на депозит")
 
 @enduml
