@@ -1,0 +1,59 @@
+@startuml
+!NEW_C4_STYLE=1
+!theme C4_sandstone from <C4/themes>
+!include Templates/C4_Container.puml
+title "BS-ADR1 MVP: Система онлайн-открытия депозитов (контекст)"
+
+SHOW_PERSON_OUTLINE()
+' LAYOUT_LANDSCAPE()
+' LAYOUT_AS_SKETCH()
+
+Person(client, "Client", "Клиент")
+' Person(call_center_operator, "Call Center Operator", "Консультирует клиентов")
+
+Boundary(banking_clusters_ext, "ЦОДы"){
+    Container_Ext(load_balancer_ext, "Load balancer Service", "Балансировщик нагрузки")
+    Container_Ext(main_online_banking_cluster_ext,"Main online banking Cluster", "Основной кластер интернет-банка (Основной ЦОД)")
+    Container_Ext(reserve_online_banking_cluster_ext, "Reserve online banking Cluster", "Резервный кластер интернет-банка (Резервный ЦОД)")
+}
+
+Rel_D(client, load_balancer_ext, "Просмотр условий депозитов")
+Rel_D(client, load_balancer_ext, "Подача заявки на депозит")
+
+Rel_D(load_balancer_ext, main_online_banking_cluster_ext, "Просмотр условий депозитов")
+Rel_D(load_balancer_ext, main_online_banking_cluster_ext, "Подача заявки на депозит")
+
+Rel_D(load_balancer_ext, reserve_online_banking_cluster_ext, "Просмотр условий депозитов")
+Rel_D(load_balancer_ext, reserve_online_banking_cluster_ext, "Подача заявки на депозит")
+
+' System_Ext(online_banking_system_ext, "Online banking application")
+
+Enterprise_Boundary(bank_systems, "Системы банка") {
+    System_Boundary(abs_system, "Автоматизированная банковская система (ABS)") {
+        Container(application_processing_service, "Application processing Service", "Обрабатывает заявки на депозит")
+        Container(abs_service, "ABS Service")
+        
+        
+        ' Container(rates_service, "Rates Service", "REST API, .NET Core", "Кэширование и предоставление актуальных ставок депозитов")
+    }
+
+    System(call_center_system, "Call Center", "Консультирует клиентов")
+    Person(bo_deposit_employee, "Back Office Deposit Employee", "Обрабатывает заявки на депозиты")
+    System(sms_gateway, "SMS Gateway", "Отправляет СМС-уведомлений")
+}
+
+
+' System_Ext(partner_call_center_system_ext, "Partner call center")
+
+' Rel_L(rates_service, abs_service, "Получение ставок")
+Rel_D(main_online_banking_cluster_ext, application_processing_service, "Подача заявки на депозит")
+Rel_D(reserve_online_banking_cluster_ext, application_processing_service, "Подача заявки на депозит")
+
+Rel_D(abs_service, sms_gateway, "Уведомление о статусах депозита")
+Rel_D(application_processing_service, abs_service, "Передает информацию")
+Rel_R(bo_deposit_employee, application_processing_service, "Обработка заявки на депозит")
+
+Rel(abs_service, call_center_system, "Заводит обращение на депозит")
+' Rel_R(rates_service, partner_call_center_system_ext, "Получение файлов со ставками")
+
+@enduml

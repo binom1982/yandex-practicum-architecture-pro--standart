@@ -1,0 +1,51 @@
+@startuml
+!NEW_C4_STYLE=1
+!theme C4_sandstone from <C4/themes>
+!include Templates/C4_Container.puml
+title "BS-ADR1 MVP: Онлайн-подачи заявки на кредит (контекст)"
+
+SHOW_PERSON_OUTLINE()
+
+Person(client, "Client", "Клиент")
+
+Enterprise_Boundary(bank_systems, "Системы банка") {
+    System(website_system, "Bank website")
+    System_Boundary(credit_conveyor_system, "Обрабатывает заявки на кредит") {
+        Container(credit_conveyor_service, "Credit conveyor Service", "Обрабатывает заявки на кредит")
+        Container(credit_scoring_service, "Credit scoring Service", "Определяет рейтинг клиента для выдачи ему кредита")
+    }
+
+    System(abs_system, "ABS", "Автоматизированная банковская система")
+
+    Person(fo_client_manager, "Client Manager", "Клиентский менеджер отделения")
+    Person(bo_credit_employee, "Credit Manager", "Обрабатывает заявки на кредит")
+    System(sms_gateway, "SMS Gateway", "Отправляет СМС-уведомлений")
+}
+
+System_Ext(online_banking_system_ext, "Online banking application")
+System_Ext(credit_bureau_api_ext, "Credit Bureau API")
+
+Rel(credit_conveyor_service, credit_scoring_service, "Использует")
+
+Rel_D(credit_scoring_service, credit_bureau_api_ext, "Использует")
+
+Rel_D(client, online_banking_system_ext, "Просмотр условий кредитов")
+Rel_D(client, online_banking_system_ext, "Подача заявки на кредит")
+
+Rel_D(client, website_system, "Просмотр условий кредитов")
+Rel_D(client, website_system, "Подача заявки на кредит")
+
+' Lay_D(online_banking_system_ext, bank_systems)
+
+Rel(website_system, credit_conveyor_service, "Подача заявки на кредит")
+Rel(online_banking_system_ext, credit_conveyor_service, "Подача заявки на кредит")
+
+
+' Lay_R(fo_client_manager, credit_conveyor_system)
+Rel(fo_client_manager, credit_conveyor_service, "Подача заявки на кредит")
+Rel_L(bo_credit_employee, credit_conveyor_service, "Обработка заявки на кредит")
+
+Rel_D(credit_conveyor_service, abs_system, "Передача информации о кредитах")
+Rel_D(abs_system, sms_gateway, "Уведомление о статусах кредита")
+
+@enduml
