@@ -2,7 +2,7 @@
 !NEW_C4_STYLE=1
 !theme C4_sandstone from <C4/themes>
 !include Templates/C4_Context.puml
-title "BS-ADR1 MVP: Система онлайн-открытия депозитов (контекст)"
+title "BS-ADR1 MVP: Онлайн-подачи заявки на кредит (контекст)"
 
 SHOW_PERSON_OUTLINE()
 ' LAYOUT_LANDSCAPE()
@@ -10,25 +10,43 @@ SHOW_PERSON_OUTLINE()
 'LAYOUT_AS_SKETCH()
 
 Person(client, "Client", "Клиент")
-' Person(call_center_operator, "Call Center Operator", "Консультирует клиентов")
 
+' Person(call_center_operator, "Call Center Operator", "Консультирует клиентов")
 Enterprise_Boundary(bank_systems, "Системы банка") {
+    System(website_system, "Bank website")
+    System(credit_conveyor_system, "Credit conveyor", "Обрабатывает заявки на кредит")
+
     System(abs_system, "ABS", "Автоматизированная банковская система")
-    System(call_center_system, "Call Center", "Консультирует клиентов")
-    Person(bo_deposit_employee, "Back Office Deposit Employee", "Обрабатывает заявки на депозиты")
+    ' System(call_center_system, "Call Center", "Консультирует клиентов")
+
+    Person(fo_client_manager, "Client Manager", "Клиентский менеджер отделения")
+    Person(bo_credit_employee, "Credit Manager", "Обрабатывает заявки на кредит")
     System(sms_gateway, "SMS Gateway", "Отправляет СМС-уведомлений")
 }
 
 System_Ext(online_banking_system_ext, "Online banking application")
-System_Ext(partner_call_center_system_ext, "Partner call center")
+' System_Ext(partner_call_center_system_ext, "Partner call center")
 
-Rel_D(client, online_banking_system_ext, "Просмотр условий депозитов")
-Rel_D(client, online_banking_system_ext, "Подача заявки на депозит")
-Rel_D(online_banking_system_ext, abs_system, "Подача заявки на депозит")
-Rel(abs_system, call_center_system, "Запрос ставок депозитов")
-Rel_R(abs_system, partner_call_center_system_ext, "Получение файлов со ставками")
-Rel_D(abs_system, sms_gateway, "Уведомление о статусах депозита")
-Rel_U(bo_deposit_employee, abs_system, "Обработка заявки на депозит")
+Rel_D(client, online_banking_system_ext, "Просмотр условий кредитов")
+Rel_D(client, online_banking_system_ext, "Подача заявки на кредит")
+
+Rel_D(client, website_system, "Просмотр условий кредитов")
+Rel_D(client, website_system, "Подача заявки на кредит")
+
+Lay_D(online_banking_system_ext, bank_systems)
+
+Rel(website_system, credit_conveyor_system, "Подача заявки на кредит")
+Rel(online_banking_system_ext, credit_conveyor_system, "Подача заявки на кредит")
+
+
+
+Rel_R(fo_client_manager, credit_conveyor_system, "Оформление заявки на кредит")
+
+Rel_D(credit_conveyor_system, abs_system, "Передача информации о кредитах")
+' Rel(abs_system, call_center_system, "Запрос ставок депозитов")
+' Rel_R(abs_system, partner_call_center_system_ext, "Получение файлов со ставками")
+Rel_D(abs_system, sms_gateway, "Уведомление о статусах кредита")
+Rel_L(bo_credit_employee, credit_conveyor_system, "Обработка заявки на кредит")
 
 @enduml
 

@@ -2,7 +2,7 @@
 !NEW_C4_STYLE=1
 !theme C4_sandstone from <C4/themes>
 !include Templates/C4_Container.puml
-title "BS-ADR1 MVP: Система онлайн-открытия депозитов (контекст)"
+title "BS-ADR1 MVP: Передача ставок в кол-центр (контекст)"
 
 SHOW_PERSON_OUTLINE()
 ' LAYOUT_LANDSCAPE()
