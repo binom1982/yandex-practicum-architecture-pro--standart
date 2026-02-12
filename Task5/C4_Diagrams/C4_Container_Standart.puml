@@ -5,55 +5,47 @@
 title "BS-ADR1 MVP: Онлайн-подачи заявки на кредит (контекст)"
 
 SHOW_PERSON_OUTLINE()
-' LAYOUT_LANDSCAPE()
-' LAYOUT_AS_SKETCH()
 
 Person(client, "Client", "Клиент")
-' Person(call_center_operator, "Call Center Operator", "Консультирует клиентов")
-
-Boundary(banking_clusters_ext, "ЦОДы"){
-    Container_Ext(load_balancer_ext, "Load balancer Service", "Балансировщик нагрузки")
-    Container_Ext(main_online_banking_cluster_ext,"Main online banking Cluster", "Основной кластер интернет-банка (Основной ЦОД)")
-    Container_Ext(reserve_online_banking_cluster_ext, "Reserve online banking Cluster", "Резервный кластер интернет-банка (Резервный ЦОД)")
-}
-
-Rel_D(client, load_balancer_ext, "Просмотр условий депозитов")
-Rel_D(client, load_balancer_ext, "Подача заявки на депозит")
-
-Rel_D(load_balancer_ext, main_online_banking_cluster_ext, "Просмотр условий депозитов")
-Rel_D(load_balancer_ext, main_online_banking_cluster_ext, "Подача заявки на депозит")
-
-Rel_D(load_balancer_ext, reserve_online_banking_cluster_ext, "Просмотр условий депозитов")
-Rel_D(load_balancer_ext, reserve_online_banking_cluster_ext, "Подача заявки на депозит")
-
-' System_Ext(online_banking_system_ext, "Online banking application")
 
 Enterprise_Boundary(bank_systems, "Системы банка") {
-    System_Boundary(abs_system, "Автоматизированная банковская система (ABS)") {
-        Container(application_processing_service, "Application processing Service", "Обрабатывает заявки на депозит")
-        Container(abs_service, "ABS Service")
-        
-        
-        Container(rates_service, "Rates Service", "REST API, .NET Core", "Кэширование и предоставление актуальных ставок депозитов")
+    System(website_system, "Bank website")
+    System_Boundary(credit_conveyor_system, "Обрабатывает заявки на кредит") {
+        Container(credit_conveyor_service, "Credit conveyor Service", "Обрабатывает заявки на кредит")
+        Container(credit_scoring_service, "Credit scoring Service", "Определяет рейтинг клиента для выдачи ему кредита")
     }
 
-    System(call_center_system, "Call Center", "Консультирует клиентов")
-    Person(bo_deposit_employee, "Back Office Deposit Employee", "Обрабатывает заявки на депозиты")
+    System(abs_system, "ABS", "Автоматизированная банковская система")
+
+    Person(fo_client_manager, "Client Manager", "Клиентский менеджер отделения")
+    Person(bo_credit_employee, "Credit Manager", "Обрабатывает заявки на кредит")
     System(sms_gateway, "SMS Gateway", "Отправляет СМС-уведомлений")
 }
 
+System_Ext(online_banking_system_ext, "Online banking application")
+System_Ext(credit_bureau_api_ext, "Credit Bureau API")
 
-System_Ext(partner_call_center_system_ext, "Partner call center")
+Rel(credit_conveyor_service, credit_scoring_service, "Использует")
 
-Rel_L(rates_service, abs_service, "Получение ставок")
-Rel_D(main_online_banking_cluster_ext, application_processing_service, "Подача заявки на депозит")
-Rel_D(reserve_online_banking_cluster_ext, application_processing_service, "Подача заявки на депозит")
+Rel_D(credit_scoring_service, credit_bureau_api_ext, "Использует")
 
-Rel_D(abs_service, sms_gateway, "Уведомление о статусах депозита")
-Rel_D(application_processing_service, abs_service, "Передает информацию")
-Rel_R(bo_deposit_employee, application_processing_service, "Обработка заявки на депозит")
+Rel_D(client, online_banking_system_ext, "Просмотр условий кредитов")
+Rel_D(client, online_banking_system_ext, "Подача заявки на кредит")
 
-Rel(rates_service, call_center_system, "Запрос ставок депозитов")
-Rel_R(rates_service, partner_call_center_system_ext, "Получение файлов со ставками")
+Rel_D(client, website_system, "Просмотр условий кредитов")
+Rel_D(client, website_system, "Подача заявки на кредит")
+
+' Lay_D(online_banking_system_ext, bank_systems)
+
+Rel(website_system, credit_conveyor_service, "Подача заявки на кредит")
+Rel(online_banking_system_ext, credit_conveyor_service, "Подача заявки на кредит")
+
+
+' Lay_R(fo_client_manager, credit_conveyor_system)
+Rel(fo_client_manager, credit_conveyor_service, "Подача заявки на кредит")
+Rel_L(bo_credit_employee, credit_conveyor_service, "Обработка заявки на кредит")
+
+Rel_D(credit_conveyor_service, abs_system, "Передача информации о кредитах")
+Rel_D(abs_system, sms_gateway, "Уведомление о статусах кредита")
 
 @enduml

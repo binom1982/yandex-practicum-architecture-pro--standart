@@ -5,19 +5,14 @@
 title "BS-ADR1 MVP: Онлайн-подачи заявки на кредит (контекст)"
 
 SHOW_PERSON_OUTLINE()
-' LAYOUT_LANDSCAPE()
-' LAYOUT_TOP_DOWN()
-'LAYOUT_AS_SKETCH()
 
 Person(client, "Client", "Клиент")
 
-' Person(call_center_operator, "Call Center Operator", "Консультирует клиентов")
 Enterprise_Boundary(bank_systems, "Системы банка") {
     System(website_system, "Bank website")
     System(credit_conveyor_system, "Credit conveyor", "Обрабатывает заявки на кредит")
 
     System(abs_system, "ABS", "Автоматизированная банковская система")
-    ' System(call_center_system, "Call Center", "Консультирует клиентов")
 
     Person(fo_client_manager, "Client Manager", "Клиентский менеджер отделения")
     Person(bo_credit_employee, "Credit Manager", "Обрабатывает заявки на кредит")
@@ -25,7 +20,6 @@ Enterprise_Boundary(bank_systems, "Системы банка") {
 }
 
 System_Ext(online_banking_system_ext, "Online banking application")
-' System_Ext(partner_call_center_system_ext, "Partner call center")
 
 Rel_D(client, online_banking_system_ext, "Просмотр условий кредитов")
 Rel_D(client, online_banking_system_ext, "Подача заявки на кредит")
@@ -43,8 +37,6 @@ Rel(online_banking_system_ext, credit_conveyor_system, "Подача заявк�
 Rel_R(fo_client_manager, credit_conveyor_system, "Оформление заявки на кредит")
 
 Rel_D(credit_conveyor_system, abs_system, "Передача информации о кредитах")
-' Rel(abs_system, call_center_system, "Запрос ставок депозитов")
-' Rel_R(abs_system, partner_call_center_system_ext, "Получение файлов со ставками")
 Rel_D(abs_system, sms_gateway, "Уведомление о статусах кредита")
 Rel_L(bo_credit_employee, credit_conveyor_system, "Обработка заявки на кредит")
 
